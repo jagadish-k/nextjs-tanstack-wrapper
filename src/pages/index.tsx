@@ -1,4 +1,4 @@
-import { Box, Container, Drawer, Paper, Typography } from '@mui/material';
+import { Box, Button, Container, Drawer, Paper, Typography } from '@mui/material';
 import Head from 'next/head';
 
 import { makeFakePeople } from '@app/utils/fake-data';
@@ -6,6 +6,7 @@ import AppTable from '@app/components/app-table';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { Person } from '@app/types';
 import { useEffect, useReducer, useState } from 'react';
+import { faker } from '@faker-js/faker';
 
 const personColumnHelper = createColumnHelper<Person>();
 
@@ -55,7 +56,7 @@ const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
     case 'SELECT_CHECKBOX_ITEM':
       return {
         ...state,
-        selelectedCheckboxItems: [...action.payload],
+        selectedCheckboxItems: [...action.payload],
       };
 
     default:
@@ -76,6 +77,7 @@ export default function Home() {
   const [selectedCheckboxItems, setSelectedCheckboxItems] = useState<Person[]>([]);
 
   useEffect(() => {
+    console.log('page rendered');
     const fakePeople = Array.from({ length: 100 }, () => makeFakePeople());
     setFakePersons(fakePeople);
   }, []);
@@ -108,13 +110,13 @@ export default function Home() {
               my: 4,
             }}
           >
-            <AppTable
+            {/* <AppTable
               data={fakePersons}
               columns={columns}
               getRowId={(row) => row.id}
               clientSidePagination={true}
               pageSize={5}
-            />
+            /> */}
           </Box>
           <Box
             sx={{
@@ -129,6 +131,7 @@ export default function Home() {
               pageSize={5}
               selectionMode="single"
               onRowSelect={(items: Person[]) => {
+                console.log('called single checkbox handler');
                 console.log(items);
                 setSelectedRadioItem(items[0]);
                 // dispatch({ type: 'SELECT_RADIO_ITEM', payload: items[0] });
@@ -148,6 +151,7 @@ export default function Home() {
               pageSize={5}
               selectionMode="multiple"
               onRowSelect={(items: Person[]) => {
+                console.log('called multiselect checkbox handler');
                 // setSelectedCheckboxItems(items);
               }}
             />
@@ -177,11 +181,28 @@ export default function Home() {
               <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
                 Selected Checkbox Items from local state
               </Typography>
-              {/* <pre>{JSON.stringify(selectedCheckboxItems, null, 2)}</pre> */}
+              <pre>{JSON.stringify(selectedCheckboxItems, null, 2)}</pre>
               <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
                 Selected Checkbox Items from app state
               </Typography>
               <pre>{JSON.stringify(state.selectedCheckboxItems, null, 2)}</pre>
+              <Button
+                onClick={() => {
+                  setSelectedCheckboxItems([fakePersons[0], fakePersons[1]]);
+                }}
+              >
+                Test Local
+              </Button>
+              <Button
+                onClick={() => {
+                  dispatch({
+                    type: 'SELECT_CHECKBOX_ITEM',
+                    payload: [fakePersons[0], fakePersons[1]],
+                  });
+                }}
+              >
+                Test Dispatch
+              </Button>
             </Paper>
           </Drawer>
         </Container>
