@@ -15,6 +15,7 @@ import {
 import {
   ColumnDef,
   PaginationState,
+  RowData,
   RowSelectionState,
   SortingState,
   flexRender,
@@ -27,25 +28,14 @@ import {
 import { useEffect, useState } from 'react';
 import { getRowSelectionState, getCellProps } from './utils';
 import { CustomFooter } from './footer';
+import { AppTableProps } from './types';
 
-export interface AppTableProps<T extends object> {
-  data: T[];
-  columns: ColumnDef<T>[] | ColumnDef<T, string>[];
-
-  availablePageSizes?: number[];
-  pageSize?: number;
-  pageIndex?: number;
-  onPaginationChange?: (pageNumber: number, pageSize: number) => void;
-  rowSelection?: RowSelectionState;
-  onRowSelect?: (selected: T[]) => void;
-
-  selectionMode?: 'none' | 'single' | 'multiple';
-
-  selectedItems?: T[];
-
-  clientSidePagination?: boolean;
-  getRowId: (row: T) => string | number; // Function to extract a row's ID
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    type: string;
+  }
 }
+
 const AppTable = <T extends object>({
   columns,
   data = [],
@@ -71,6 +61,7 @@ const AppTable = <T extends object>({
             header: ({ table }) =>
               selectionMode === 'multiple' ? (
                 <Checkbox
+                  name="select-all-rows"
                   {...{
                     checked: table.getIsAllRowsSelected(),
                     indeterminate: table.getIsSomeRowsSelected(),
@@ -82,6 +73,7 @@ const AppTable = <T extends object>({
               <>
                 {selectionMode === 'multiple' ? (
                   <Checkbox
+                    name={`select-row-${row.id}`}
                     {...{
                       checked: row.getIsSelected(),
                       disabled: !row.getCanSelect(),
@@ -90,6 +82,7 @@ const AppTable = <T extends object>({
                   />
                 ) : (
                   <Radio
+                    name={`select-row-${row.id}`}
                     {...{
                       checked: row.getIsSelected(),
                       disabled: !row.getCanSelect(),
@@ -119,6 +112,11 @@ const AppTable = <T extends object>({
   } = useReactTable<T>({
     columns: mergedColumns,
     data,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+
     getRowId: (row) => getRowId(row).toString(),
 
     state: {
@@ -131,11 +129,6 @@ const AppTable = <T extends object>({
     enableMultiRowSelection: selectionMode === 'multiple',
 
     onSortingChange: setSorting,
-
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
 
     onRowSelectionChange: setRowSelection,
 

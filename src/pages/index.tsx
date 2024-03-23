@@ -42,7 +42,7 @@ interface TableAction {
 
 interface PageTableSelectionState {
   selectedRadioItem: Person;
-  selelectedCheckboxItems: Person[];
+  selectedCheckboxItems: Person[];
 }
 
 const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
@@ -66,11 +66,15 @@ const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
 
 export default function Home() {
   const [state, dispatch] = useReducer(stateReducer, {
-    selectedRadioItem: null,
-    selelectedCheckboxItems: [],
+    selectedRadioItem: undefined,
+    selectedCheckboxItems: [],
   });
 
   const [fakePersons, setFakePersons] = useState<Person[]>([]);
+
+  const [selectedRadioItem, setSelectedRadioItem] = useState<Person>();
+  const [selectedCheckboxItems, setSelectedCheckboxItems] = useState<Person[]>([]);
+
   useEffect(() => {
     const fakePeople = Array.from({ length: 100 }, () => makeFakePeople());
     setFakePersons(fakePeople);
@@ -124,7 +128,11 @@ export default function Home() {
               clientSidePagination={true}
               pageSize={5}
               selectionMode="single"
-              onRowSelect={(items: Person[]) => {}}
+              onRowSelect={(items: Person[]) => {
+                console.log(items);
+                setSelectedRadioItem(items[0]);
+                // dispatch({ type: 'SELECT_RADIO_ITEM', payload: items[0] });
+              }}
             />
           </Box>
           <Box
@@ -139,6 +147,9 @@ export default function Home() {
               clientSidePagination={true}
               pageSize={5}
               selectionMode="multiple"
+              onRowSelect={(items: Person[]) => {
+                // setSelectedCheckboxItems(items);
+              }}
             />
           </Box>
           <Drawer
@@ -156,13 +167,21 @@ export default function Home() {
           >
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
-                Selected Radio Item
+                Selected Radio Item from local state
+              </Typography>
+              <pre>{JSON.stringify(selectedRadioItem, null, 2)}</pre>
+              <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
+                Selected Radio Item from app state
               </Typography>
               <pre>{JSON.stringify(state.selectedRadioItem, null, 2)}</pre>
               <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
-                Selected Checkbox Items
+                Selected Checkbox Items from local state
               </Typography>
-              <pre>{JSON.stringify(state.selelectedCheckboxItems, null, 2)}</pre>
+              {/* <pre>{JSON.stringify(selectedCheckboxItems, null, 2)}</pre> */}
+              <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
+                Selected Checkbox Items from app state
+              </Typography>
+              <pre>{JSON.stringify(state.selectedCheckboxItems, null, 2)}</pre>
             </Paper>
           </Drawer>
         </Container>

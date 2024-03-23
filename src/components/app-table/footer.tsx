@@ -53,7 +53,13 @@ export const CustomFooter: React.FC<CustomFooterProps> = ({
     </IconButton>
 
     <FormControl sx={{ ml: '15px', minWidth: 120 }} size="small">
-      <Select labelId="demo-select-small-label" id="demo-select-small" value={pageSize} onChange={handlePageSizeChange}>
+      <Select
+        labelId="demo-select-small-label"
+        id="demo-select-small"
+        value={pageSize}
+        onChange={handlePageSizeChange}
+        name="num-rows-selector"
+      >
         {availablePageSizes?.map((size) => (
           <MenuItem key={size} value={size}>
             Rows per page {size}
