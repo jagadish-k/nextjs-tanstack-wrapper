@@ -1,4 +1,3 @@
-import { Box, Button, Container, Drawer, Paper, Typography } from '@mui/material';
 import Head from 'next/head';
 
 import { makeFakePeople } from '@app/utils/fake-data';
@@ -37,13 +36,13 @@ const columns: ColumnDef<Person, any>[] = [
 ];
 
 interface TableAction {
-  type: 'SELECT_RADIO_ITEM' | 'SELECT_CHECKBOX_ITEM';
+  type: 'SELECT_RADIO_ITEM' | 'SELECT_CHECKdiv_ITEM';
   payload: any;
 }
 
 interface PageTableSelectionState {
   selectedRadioItem: Person;
-  selectedCheckboxItems: Person[];
+  selectedCheckdivItems: Person[];
 }
 
 const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
@@ -53,10 +52,10 @@ const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
         ...state,
         selectedRadioItem: action.payload,
       };
-    case 'SELECT_CHECKBOX_ITEM':
+    case 'SELECT_CHECKdiv_ITEM':
       return {
         ...state,
-        selectedCheckboxItems: [...action.payload],
+        selectedCheckdivItems: [...action.payload],
       };
 
     default:
@@ -68,13 +67,13 @@ const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
 export default function Home() {
   const [state, dispatch] = useReducer(stateReducer, {
     selectedRadioItem: undefined,
-    selectedCheckboxItems: [],
+    selectedCheckdivItems: [],
   });
 
   const [fakePersons, setFakePersons] = useState<Person[]>([]);
 
   const [selectedRadioItem, setSelectedRadioItem] = useState<Person>();
-  const [selectedCheckboxItems, setSelectedCheckboxItems] = useState<Person[]>([]);
+  const [selectedCheckdivItems, setSelectedCheckdivItems] = useState<Person[]>([]);
 
   useEffect(() => {
     console.log('page rendered');
@@ -91,36 +90,35 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Container maxWidth="lg">
-          <Box
-            sx={{
-              my: 4,
+        <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
+          <div
+            style={{
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
-            <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-              Material UI - Next.js Tanstack Table Wrapper example in TypeScript
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              my: 4,
+            <h4 style={{ marginBottom: '10px' }}>Next.js Tanstack Table Wrapper example in TypeScript</h4>
+          </div>
+          <div
+            style={{
+              paddingTop: '20px',
+              paddingBottom: '20px',
             }}
           >
-            {/* <AppTable
+            <AppTable
               data={fakePersons}
               columns={columns}
               getRowId={(row) => row.id}
               clientSidePagination={true}
               pageSize={5}
-            /> */}
-          </Box>
-          <Box
-            sx={{
-              my: 4,
+            />
+          </div>
+          <div
+            style={{
+              paddingTop: '20px',
+              paddingBottom: '20px',
             }}
           >
             <AppTable
@@ -131,16 +129,17 @@ export default function Home() {
               pageSize={5}
               selectionMode="single"
               onRowSelect={(items: Person[]) => {
-                console.log('called single checkbox handler');
+                console.log('called single checkdiv handler');
                 console.log(items);
                 setSelectedRadioItem(items[0]);
                 // dispatch({ type: 'SELECT_RADIO_ITEM', payload: items[0] });
               }}
             />
-          </Box>
-          <Box
-            sx={{
-              my: 4,
+          </div>
+          <div
+            style={{
+              paddingTop: '40px',
+              paddingBottom: '40px',
             }}
           >
             <AppTable
@@ -151,61 +150,51 @@ export default function Home() {
               pageSize={5}
               selectionMode="multiple"
               onRowSelect={(items: Person[]) => {
-                console.log('called multiselect checkbox handler');
-                // setSelectedCheckboxItems(items);
+                console.log('called multiselect checkdiv handler');
+                // setSelectedCheckdivItems(items);
               }}
             />
-          </Box>
-          <Drawer
-            variant="permanent"
-            anchor="right"
-            sx={{
-              'padding': 1,
-              'width': 400,
-              'flexShrink': 0,
-              '& .MuiDrawer-paper': {
-                width: 400,
-                boxSizing: 'border-box',
-              },
+          </div>
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              right: 0,
+              width: '400px',
+              top: 0,
+              border: '1px solid rgba(0, 0, 0, 0.23)',
             }}
           >
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
-                Selected Radio Item from local state
-              </Typography>
+            <div style={{ padding: '20px' }}>
+              <h6 style={{ marginBottom: '20px' }}>Selected Radio Item from local state</h6>
               <pre>{JSON.stringify(selectedRadioItem, null, 2)}</pre>
-              <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
-                Selected Radio Item from app state
-              </Typography>
+              <h6 style={{ marginBottom: '20px' }}>Selected Radio Item from app state</h6>
               <pre>{JSON.stringify(state.selectedRadioItem, null, 2)}</pre>
-              <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
-                Selected Checkbox Items from local state
-              </Typography>
-              <pre>{JSON.stringify(selectedCheckboxItems, null, 2)}</pre>
-              <Typography variant="h6" component="h1" sx={{ mb: 2 }}>
-                Selected Checkbox Items from app state
-              </Typography>
-              <pre>{JSON.stringify(state.selectedCheckboxItems, null, 2)}</pre>
-              <Button
+              <h6 style={{ marginBottom: '20px' }}>Selected Checkdiv Items from local state</h6>
+              <pre>{JSON.stringify(selectedCheckdivItems, null, 2)}</pre>
+              <h6 style={{ marginBottom: '20px' }}>Selected Checkdiv Items from app state</h6>
+              <pre>{JSON.stringify(state.selectedCheckdivItems, null, 2)}</pre>
+              <button
+                style={{ marginRight: '10px' }}
                 onClick={() => {
-                  setSelectedCheckboxItems([fakePersons[0], fakePersons[1]]);
+                  setSelectedCheckdivItems([fakePersons[0], fakePersons[1]]);
                 }}
               >
                 Test Local
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={() => {
                   dispatch({
-                    type: 'SELECT_CHECKBOX_ITEM',
+                    type: 'SELECT_CHECKdiv_ITEM',
                     payload: [fakePersons[0], fakePersons[1]],
                   });
                 }}
               >
                 Test Dispatch
-              </Button>
-            </Paper>
-          </Drawer>
-        </Container>
+              </button>
+            </div>
+          </div>
+        </div>
       </main>
     </>
   );

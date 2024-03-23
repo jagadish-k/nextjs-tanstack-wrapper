@@ -1,4 +1,5 @@
-import { ColumnDef, RowData, RowSelectionState } from '@tanstack/react-table';
+import { ColumnDef, RowSelectionState } from '@tanstack/react-table';
+import { ChangeEventHandler } from 'react';
 
 export interface AppTableProps<T extends object> {
   data: T[];
@@ -17,4 +18,15 @@ export interface AppTableProps<T extends object> {
 
   clientSidePagination?: boolean;
   getRowId: (row: T) => string | number; // Function to extract a row's ID
+}
+
+export interface CustomFooterProps {
+  handlePrev?: () => void;
+  currentPage: number;
+  handleNext?: () => void;
+  availablePageSizes?: number[];
+  pageSize?: number;
+  handlePageSizeChange: ChangeEventHandler<HTMLSelectElement>;
+  enableNext?: boolean;
+  enablePrev?: boolean;
 }

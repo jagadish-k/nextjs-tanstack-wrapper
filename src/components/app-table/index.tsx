@@ -1,18 +1,4 @@
 import {
-  Checkbox,
-  Radio,
-  SelectChangeEvent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableFooter,
-  TableHead,
-  TableProps,
-  TableRow,
-  Typography,
-} from '@mui/material';
-import {
   ColumnDef,
   PaginationState,
   RowData,
@@ -26,7 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
-import { getRowSelectionState, getCellProps } from './utils';
+import { getRowSelectionState } from './utils';
 import { CustomFooter } from './footer';
 import { AppTableProps } from './types';
 
@@ -60,11 +46,12 @@ const AppTable = <T extends object>({
             size: 20,
             header: ({ table }) =>
               selectionMode === 'multiple' ? (
-                <Checkbox
+                <input
+                  type="checkbox"
                   name="select-all-rows"
                   {...{
                     checked: table.getIsAllRowsSelected(),
-                    indeterminate: table.getIsSomeRowsSelected(),
+                    // indeterminate: table.getIsSomeRowsSelected(),
                     onChange: table.getToggleAllRowsSelectedHandler(),
                   }}
                 />
@@ -72,7 +59,8 @@ const AppTable = <T extends object>({
             cell: ({ row }) => (
               <>
                 {selectionMode === 'multiple' ? (
-                  <Checkbox
+                  <input
+                    type="checkbox"
                     name={`select-row-${row.id}`}
                     {...{
                       checked: row.getIsSelected(),
@@ -81,7 +69,8 @@ const AppTable = <T extends object>({
                     }}
                   />
                 ) : (
-                  <Radio
+                  <input
+                    type="radio"
                     name={`select-row-${row.id}`}
                     {...{
                       checked: row.getIsSelected(),
@@ -162,98 +151,94 @@ const AppTable = <T extends object>({
   }, [data, getRowId, rowModel.flatRows, selectedItems]);
 
   return (
-    <TableContainer sx={{ minHeight: '150px' }}>
-      <Table aria-label="tryft data table" data-testid="tryft-data-table">
-        <TableHead>
-          {headerGroups.map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableCell
-                    key={header.id}
-                    align={
-                      header.column.columnDef.meta?.type === 'number' ||
-                      header.column.columnDef.meta?.type === 'currency'
-                        ? 'right'
-                        : 'left'
-                    }
-                    width={header.getSize()}
-                    sx={{
-                      color: '#6FA2BF',
-                      fontWeight: 400,
-                      fontSize: '18px',
-                      lineHeight: '22px',
-                    }}
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHead>
-        <TableBody>
-          {rowModel && rowModel.rows.length > 0 ? (
-            rowModel.rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    align={
-                      cell.column.columnDef.meta?.type === 'number' || cell.column.columnDef.meta?.type === 'currency'
-                        ? 'right'
-                        : 'left'
-                    }
-                    {...getCellProps(cell.getContext())}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={headerGroups[0].headers.length}>
-                <Typography variant="h6" align="center">
-                  No data available
-                </Typography>
-              </TableCell>
-            </TableRow>
+    <table
+      style={{
+        borderCollapse: 'collapse',
+        margin: '10px 0',
+      }}
+    >
+      <thead>
+        {headerGroups.map((headerGroup) => (
+          <tr key={headerGroup.id}>
+            {headerGroup.headers.map((header) => {
+              return (
+                <th
+                  key={header.id}
+                  align={
+                    header.column.columnDef.meta?.type === 'number' || header.column.columnDef.meta?.type === 'currency'
+                      ? 'right'
+                      : 'left'
+                  }
+                  style={{
+                    color: '#6FA2BF',
+                    fontWeight: 400,
+                    fontSize: '18px',
+                    lineHeight: '22px',
+                    border: '1px solid grey',
+                    padding: '10px 15px',
+                    width: header.getSize(),
+                  }}
+                >
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
+              );
+            })}
+          </tr>
+        ))}
+      </thead>
+      <tbody>
+        {rowModel && rowModel.rows.length > 0 ? (
+          rowModel.rows.map((row) => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <td
+                  key={cell.id}
+                  style={{
+                    border: '1px solid rgba(0, 0, 0, 0.23)',
+                    padding: '10px 15px',
+                  }}
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
+              ))}
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={headerGroups[0].headers.length}>
+              <p>No data available</p>
+            </td>
+          </tr>
+        )}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colSpan={clientSidePagination ? headerGroups[0].headers.length - 1 : headerGroups[0].headers.length}>
+            <CustomFooter
+              currentPage={clientSidePagination ? pagination.pageIndex + 1 : pageIndex}
+              enablePrev={!clientSidePagination ? pageIndex === 0 : getCanPreviousPage()}
+              handlePrev={() => {
+                previousPage();
+              }}
+              enableNext={!clientSidePagination ? hasMoreData : getCanNextPage()}
+              handleNext={() => {
+                nextPage();
+              }}
+              handlePageSizeChange={(event) => {
+                setPagination({ pageIndex: clientSidePagination ? 0 : 1, pageSize: parseInt(event.target.value) });
+              }}
+              pageSize={pagination.pageSize}
+              availablePageSizes={availablePageSizes}
+            />
+          </td>
+          {clientSidePagination && (
+            <td align="right">
+              <span>{data.length} rows</span>
+            </td>
           )}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell
-              colSpan={clientSidePagination ? headerGroups[0].headers.length - 1 : headerGroups[0].headers.length}
-            >
-              <CustomFooter
-                currentPage={clientSidePagination ? pagination.pageIndex + 1 : pageIndex}
-                enablePrev={!clientSidePagination ? pageIndex === 0 : getCanPreviousPage()}
-                handlePrev={() => {
-                  previousPage();
-                }}
-                enableNext={!clientSidePagination ? hasMoreData : getCanNextPage()}
-                handleNext={() => {
-                  nextPage();
-                }}
-                handlePageSizeChange={(event: SelectChangeEvent<number>) => {
-                  setPagination({ pageIndex: clientSidePagination ? 0 : 1, pageSize: event.target.value as number });
-                }}
-                pageSize={pagination.pageSize}
-                availablePageSizes={availablePageSizes}
-              />
-            </TableCell>
-            {clientSidePagination && (
-              <TableCell align="right">
-                <Typography variant="caption" mx={'6px'}>
-                  {data.length} rows
-                </Typography>
-              </TableCell>
-            )}
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </TableContainer>
+        </tr>
+      </tfoot>
+    </table>
   );
 };
 

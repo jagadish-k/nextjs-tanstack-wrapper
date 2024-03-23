@@ -1,4 +1,3 @@
-import { TableCellProps } from '@mui/material';
 import { CellContext, Row, RowSelectionState } from '@tanstack/react-table';
 
 export function getRowSelectionState<T extends object>(
@@ -26,10 +25,3 @@ export function retrieveElementsByIndices<T extends object>(elements: T[], indic
     .filter((index) => index >= 0 && index < elements.length) // Ensure indices are within bounds
     .map((index) => elements[index]); // Retrieve elements at the specified indices
 }
-
-export const getCellProps = <T extends object>(context: CellContext<T, unknown>): TableCellProps | undefined => {
-  if (context.row.index === 0) {
-    // console.log(context.column.columnDef.meta);
-    return {};
-  }
-};
