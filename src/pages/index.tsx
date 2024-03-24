@@ -1,49 +1,9 @@
-import Head from 'next/head';
-
-import { fakePersons, makeFakePeople } from '@app/utils/fake-data';
 import AppTable from '@app/components/app-table';
-import { ColumnDef, RowSelectionState, createColumnHelper } from '@tanstack/react-table';
-import { Person } from '@app/types';
-import { use, useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { faker } from '@faker-js/faker';
-
-const personColumnHelper = createColumnHelper<Person>();
-
-const columns: ColumnDef<Person, any>[] = [
-  personColumnHelper.accessor('title', {
-    header: 'Title',
-  }),
-
-  personColumnHelper.accessor('name', {
-    header: 'Name',
-  }),
-
-  personColumnHelper.accessor('gender', {
-    header: 'Gender',
-  }),
-
-  personColumnHelper.accessor('age', {
-    header: 'Age',
-  }),
-
-  personColumnHelper.accessor('address', {
-    header: 'Address',
-  }),
-
-  personColumnHelper.accessor('bio', {
-    header: 'Bio',
-  }),
-];
-
-interface TableAction {
-  type: 'SELECT_RADIO_ITEM' | 'SELECT_CHECKBOX_ITEM';
-  payload: any;
-}
-
-interface PageTableSelectionState {
-  selectedRadioItem: Person;
-  selectedCheckBoxItems: Person[];
-}
+import { PageTableSelectionState, Person, TableAction } from '@app/types';
+import { personsTableColumns } from '@app/utils/columns';
+import { fakePersons } from '@app/utils/fake-data';
+import Head from 'next/head';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 
 const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
   switch (action.type) {
@@ -71,16 +31,19 @@ export default function Home() {
     selectedCheckBoxItems: [],
   });
 
-  // const [fakePersons, setFakePersons] = useState<Person[]>([]);
-
-  const [selectedRadioItem, setSelectedRadioItem] = useState<RowSelectionState>({});
-  const [selectedCheckBoxItems, setSelectedCheckBoxItems] = useState<RowSelectionState>({});
+  const [selectedRadioItem, setSelectedRadioItem] = useState<Person[]>();
+  const [selectedCheckBoxItems, setSelectedCheckBoxItems] = useState<Person[]>();
 
   const getRowId = useCallback((row) => row.id, []);
 
   useEffect(() => {
     console.log('page rendered');
   }, []);
+
+  useEffect(() => {
+    selectedRadioItem && dispatch({ type: 'SELECT_RADIO_ITEM', payload: selectedRadioItem });
+    selectedCheckBoxItems?.length && dispatch({ type: 'SELECT_CHECKBOX_ITEM', payload: selectedCheckBoxItems });
+  }, [selectedRadioItem, selectedCheckBoxItems]);
 
   return (
     <>
@@ -110,13 +73,7 @@ export default function Home() {
             }}
           >
             {fakePersons.length && (
-              <AppTable
-                data={fakePersons}
-                columns={columns}
-                getRowId={getRowId}
-                clientSidePagination={true}
-                pageSize={5}
-              />
+              <AppTable data={fakePersons} columns={personsTableColumns} getRowId={getRowId} pageSize={5} />
             )}
           </div>
           <div
@@ -128,13 +85,15 @@ export default function Home() {
             {fakePersons.length && (
               <AppTable
                 data={fakePersons}
-                columns={columns}
+                columns={personsTableColumns}
                 getRowId={getRowId}
-                clientSidePagination={true}
-                pageSize={5}
                 selectionMode="single"
-                rowSelection={selectedRadioItem}
-                setRowSelection={setSelectedRadioItem}
+                onSelection={(selectedRows: Person[]) => {
+                  console.log('selectedRows', selectedRows);
+                  setSelectedRadioItem(selectedRows);
+                }}
+                // rowSelection={selectedRadioItem}
+                // setRowSelection={setSelectedRadioItem}
               />
             )}
           </div>
@@ -147,13 +106,15 @@ export default function Home() {
             {fakePersons.length && (
               <AppTable
                 data={fakePersons}
-                columns={columns}
+                columns={personsTableColumns}
                 getRowId={getRowId}
-                clientSidePagination={true}
-                pageSize={5}
                 selectionMode="multiple"
-                rowSelection={selectedCheckBoxItems}
-                setRowSelection={setSelectedCheckBoxItems}
+                onSelection={(selectedRows: Person[]) => {
+                  console.log('selectedRows', selectedRows);
+                  setSelectedCheckBoxItems(selectedRows);
+                }}
+                // rowSelection={selectedCheckBoxItems}
+                // setRowSelection={setSelectedCheckBoxItems}
               />
             )}
           </div>

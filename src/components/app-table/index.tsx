@@ -6,15 +6,11 @@ import {
   SortingState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { getRowSelectionState } from './utils';
-import { CustomFooter } from './footer';
+import { useEffect, useMemo, useState } from 'react';
 import { AppTableProps } from './types';
+import React from 'react';
 
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -27,19 +23,14 @@ const AppTable = <T extends object>(props: AppTableProps<T>) => {
     columns,
     data = [],
     selectionMode = 'none',
-    pageSize = 5,
-    pageIndex = 0,
-    onPaginationChange,
-    availablePageSizes = [5, 15, 30],
     selectedItems = [],
-    rowSelection,
-    setRowSelection,
-    // onRowSelect,
-    clientSidePagination = false,
+    // rowSelection,
+    // setRowSelection,
+    onSelection,
     getRowId,
   } = props;
 
-  // const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [rowSelection, onRowSelectionChange] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const mergedColumns: ColumnDef<T, string>[] =
     selectionMode === 'none'
@@ -89,70 +80,30 @@ const AppTable = <T extends object>(props: AppTableProps<T>) => {
           ...columns,
         ];
 
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex,
-    pageSize,
-  });
-
-  const {
-    getHeaderGroups,
-    getRowModel,
-    getSelectedRowModel,
-    nextPage,
-    previousPage,
-    getCanNextPage,
-    getCanPreviousPage,
-  } = useReactTable<T>({
+  const { getHeaderGroups, getRowModel, getSelectedRowModel } = useReactTable<T>({
     columns: mergedColumns,
     data,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-
     getRowId: (row) => getRowId(row).toString(),
 
     state: {
-      sorting,
-      pagination,
       ...(selectionMode !== 'none' && { rowSelection }),
     },
 
     enableRowSelection: selectionMode !== 'none',
     enableMultiRowSelection: selectionMode === 'multiple',
 
-    onSortingChange: setSorting,
-
-    onRowSelectionChange: setRowSelection as any,
-
-    manualPagination: false,
-    onPaginationChange: setPagination,
-
+    onRowSelectionChange,
     debugTable: false,
   });
 
   const headerGroups = getHeaderGroups();
   const rowModel = getRowModel();
-  const hasMoreData = data.length == pageSize;
 
   useEffect(() => {
-    onPaginationChange?.(pagination.pageIndex, pagination.pageSize);
-  }, [onPaginationChange, pagination]);
-
-  // useEffect(() => {
-  //   onRowSelect?.(getSelectedRowModel().rows.map((row) => row.original as T));
-  // }, [getSelectedRowModel, onRowSelect, rowSelection]);
-
-  // useEffect(() => {
-  //   if (rowModel.flatRows.length && selectedItems.length) {
-  //     setRowSelection((prev) => {
-  //       const selection = getRowSelectionState(selectedItems, rowModel.flatRows, getRowId);
-  //       console.log(selectedItems, data, selection);
-
-  //       return selection;
-  //     });
-  //   }
-  // }, [data, getRowId, rowModel.flatRows, selectedItems]);
+    onSelection?.(getSelectedRowModel().rows.map((row) => row.original as T));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getSelectedRowModel, rowSelection]);
 
   return (
     <table
@@ -215,35 +166,8 @@ const AppTable = <T extends object>(props: AppTableProps<T>) => {
           </tr>
         )}
       </tbody>
-      <tfoot>
-        <tr>
-          <td colSpan={clientSidePagination ? headerGroups[0].headers.length - 1 : headerGroups[0].headers.length}>
-            <CustomFooter
-              currentPage={clientSidePagination ? pagination.pageIndex + 1 : pageIndex}
-              enablePrev={!clientSidePagination ? pageIndex === 0 : getCanPreviousPage()}
-              handlePrev={() => {
-                previousPage();
-              }}
-              enableNext={!clientSidePagination ? hasMoreData : getCanNextPage()}
-              handleNext={() => {
-                nextPage();
-              }}
-              handlePageSizeChange={(event) => {
-                setPagination({ pageIndex: clientSidePagination ? 0 : 1, pageSize: parseInt(event.target.value) });
-              }}
-              pageSize={pagination.pageSize}
-              availablePageSizes={availablePageSizes}
-            />
-          </td>
-          {clientSidePagination && (
-            <td align="right">
-              <span>{data.length} rows</span>
-            </td>
-          )}
-        </tr>
-      </tfoot>
     </table>
   );
 };
 
-export default AppTable;
+export default React.memo(AppTable);

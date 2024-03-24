@@ -1,4 +1,4 @@
-import { CellContext, Row, RowSelectionState } from '@tanstack/react-table';
+import { Row, RowSelectionState } from '@tanstack/react-table';
 
 export function getRowSelectionState<T extends object>(
   selectedItems: T[],
