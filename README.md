@@ -8,11 +8,11 @@ In this experiment, I am trying to build a wrapper on [Tanstack Table v8](https:
 - Should show a radio button in the first column if in `single` mode.
 - Should show a checkbox in first column including the select all checkbox when in `multiple` mode.
 
-## Problems encountered.
-
-When I tried to put a prop `onRowSelect` on the wrapper component that would be called when `rowSelectionState` changes inside the wrapper, I ran into an infinite render situation.
-
 ### Where can I see.
+
+Hosted : [GH-Pages](https://jagadish-k.github.io/nextjs-tanstack-wrapper/)
+
+#### Locally
 
 ```
 > npm i
