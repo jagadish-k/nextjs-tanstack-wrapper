@@ -1,14 +1,14 @@
-import {
-  ColumnDef,
-  RowData,
-  RowSelectionState,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+import { ColumnDef, RowSelectionState, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
-import { AppTableProps } from './types';
-import React from 'react';
+
+interface AppTableProps<T extends object> {
+  data: T[];
+  columns: ColumnDef<T>[] | ColumnDef<T, string>[];
+  getRowId: (row: T) => string | number; // Function to extract a row's ID
+
+  selectionMode?: 'none' | 'single' | 'multiple';
+  onSelection?: (selected: T[]) => void;
+}
 
 const AppTable = <T extends object>({
   columns,
@@ -87,36 +87,15 @@ const AppTable = <T extends object>({
 
   useEffect(() => {
     onSelection?.(getSelectedRowModel().rows.map((row) => row.original as T));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getSelectedRowModel, rowSelection]);
+  }, [getSelectedRowModel, rowSelection, onSelection]);
 
   return (
-    <table
-      style={{
-        borderCollapse: 'collapse',
-        margin: '10px 0',
-      }}
-    >
+    <table>
       <thead>
         {headerGroups.map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
-              return (
-                <th
-                  key={header.id}
-                  style={{
-                    color: '#6FA2BF',
-                    fontWeight: 400,
-                    fontSize: '18px',
-                    lineHeight: '22px',
-                    border: '1px solid grey',
-                    padding: '10px 15px',
-                    width: header.getSize(),
-                  }}
-                >
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              );
+              return <th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</th>;
             })}
           </tr>
         ))}
@@ -126,15 +105,7 @@ const AppTable = <T extends object>({
           rowModel.rows.map((row) => (
             <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  style={{
-                    border: '1px solid rgba(0, 0, 0, 0.23)',
-                    padding: '10px 15px',
-                  }}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+                <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
               ))}
             </tr>
           ))
@@ -150,4 +121,4 @@ const AppTable = <T extends object>({
   );
 };
 
-export default React.memo(AppTable);
+export default AppTable;

@@ -2,6 +2,7 @@ import AppTable from '@app/components/app-table';
 import { PageTableSelectionState, Person, TableAction } from '@app/types';
 import { personsTableColumns } from '@app/utils/columns';
 import { fakePersons } from '@app/utils/fake-data';
+import { Row } from '@tanstack/react-table';
 import Head from 'next/head';
 import { useCallback, useEffect, useReducer, useState } from 'react';
 
@@ -34,7 +35,17 @@ export default function Home() {
   const [selectedRadioItem, setSelectedRadioItem] = useState<Person[]>();
   const [selectedCheckBoxItems, setSelectedCheckBoxItems] = useState<Person[]>();
 
-  const getRowId = useCallback((row) => row.id, []);
+  const getRowId = useCallback((row: Person) => row.id, []);
+
+  const onSelectRadioItem = useCallback((selectedRows: Person[]) => {
+    console.log('selectedRows', selectedRows);
+    setSelectedRadioItem(selectedRows);
+  }, []);
+
+  const onSelectCheckboxItem = useCallback((selectedRows: Person[]) => {
+    console.log('selectedRows', selectedRows);
+    setSelectedCheckBoxItems(selectedRows);
+  }, []);
 
   useEffect(() => {
     console.log('page rendered');
@@ -88,10 +99,7 @@ export default function Home() {
                 columns={personsTableColumns}
                 getRowId={getRowId}
                 selectionMode="single"
-                onSelection={(selectedRows: Person[]) => {
-                  console.log('selectedRows', selectedRows);
-                  setSelectedRadioItem(selectedRows);
-                }}
+                onSelection={onSelectRadioItem}
                 // rowSelection={selectedRadioItem}
                 // setRowSelection={setSelectedRadioItem}
               />
@@ -109,12 +117,7 @@ export default function Home() {
                 columns={personsTableColumns}
                 getRowId={getRowId}
                 selectionMode="multiple"
-                onSelection={(selectedRows: Person[]) => {
-                  console.log('selectedRows', selectedRows);
-                  setSelectedCheckBoxItems(selectedRows);
-                }}
-                // rowSelection={selectedCheckBoxItems}
-                // setRowSelection={setSelectedCheckBoxItems}
+                onSelection={onSelectCheckboxItem}
               />
             )}
           </div>
