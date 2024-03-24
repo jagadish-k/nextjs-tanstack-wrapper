@@ -21,7 +21,7 @@ Hosted : [GH-Pages](https://jagadish-k.github.io/nextjs-tanstack-wrapper/)
 
 Open [localhost](http://localhost:3000). You will see 3 versions of the table.
 
-- Static version with pagination.
+- Static version.
 - Single Selection.
 - Multiple Selection.
 
