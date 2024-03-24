@@ -83,9 +83,7 @@ export default function Home() {
               paddingBottom: '20px',
             }}
           >
-            {fakePersons.length && (
-              <AppTable data={fakePersons} columns={personsTableColumns} getRowId={getRowId} pageSize={5} />
-            )}
+            {fakePersons.length && <AppTable data={fakePersons} columns={personsTableColumns} getRowId={getRowId} />}
           </div>
           <div
             style={{
