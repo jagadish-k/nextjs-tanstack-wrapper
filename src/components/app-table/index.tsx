@@ -1,37 +1,23 @@
 import {
   ColumnDef,
-  PaginationState,
   RowData,
   RowSelectionState,
-  SortingState,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppTableProps } from './types';
 import React from 'react';
 
-declare module '@tanstack/react-table' {
-  interface ColumnMeta<TData extends RowData, TValue> {
-    type: string;
-  }
-}
-
-const AppTable = <T extends object>(props: AppTableProps<T>) => {
-  const {
-    columns,
-    data = [],
-    selectionMode = 'none',
-    selectedItems = [],
-    // rowSelection,
-    // setRowSelection,
-    onSelection,
-    getRowId,
-  } = props;
-
+const AppTable = <T extends object>({
+  columns,
+  data = [],
+  selectionMode = 'none',
+  onSelection,
+  getRowId,
+}: AppTableProps<T>) => {
   const [rowSelection, onRowSelectionChange] = useState<RowSelectionState>({});
-  const [sorting, setSorting] = useState<SortingState>([]);
   const mergedColumns: ColumnDef<T, string>[] =
     selectionMode === 'none'
       ? columns
@@ -46,7 +32,6 @@ const AppTable = <T extends object>(props: AppTableProps<T>) => {
                   name="select-all-rows"
                   {...{
                     checked: table.getIsAllRowsSelected(),
-                    // indeterminate: table.getIsSomeRowsSelected(),
                     onChange: table.getToggleAllRowsSelectedHandler(),
                   }}
                 />
@@ -119,11 +104,6 @@ const AppTable = <T extends object>(props: AppTableProps<T>) => {
               return (
                 <th
                   key={header.id}
-                  align={
-                    header.column.columnDef.meta?.type === 'number' || header.column.columnDef.meta?.type === 'currency'
-                      ? 'right'
-                      : 'left'
-                  }
                   style={{
                     color: '#6FA2BF',
                     fontWeight: 400,

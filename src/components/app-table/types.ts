@@ -6,8 +6,5 @@ export interface AppTableProps<T extends object> {
   getRowId: (row: T) => string | number; // Function to extract a row's ID
 
   selectionMode?: 'none' | 'single' | 'multiple';
-  rowSelection?: RowSelectionState;
-  setRowSelection?: (rowSelection: RowSelectionState) => void;
   onSelection?: (selected: T[]) => void;
-  selectedItems?: T[];
 }
