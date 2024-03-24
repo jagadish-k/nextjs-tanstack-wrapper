@@ -10,6 +10,7 @@ export interface AppTableProps<T extends object> {
   pageIndex?: number;
   onPaginationChange?: (pageNumber: number, pageSize: number) => void;
   rowSelection?: RowSelectionState;
+  setRowSelection?: (rowSelection: RowSelectionState) => void;
   onRowSelect?: (selected: T[]) => void;
 
   selectionMode?: 'none' | 'single' | 'multiple';

@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { getRowSelectionState } from './utils';
 import { CustomFooter } from './footer';
 import { AppTableProps } from './types';
@@ -22,20 +22,28 @@ declare module '@tanstack/react-table' {
   }
 }
 
-const AppTable = <T extends object>({
-  columns,
-  data = [],
-  selectionMode = 'none',
-  pageSize = 5,
-  pageIndex = 0,
-  onPaginationChange,
-  availablePageSizes = [5, 15, 30],
-  selectedItems = [],
-  onRowSelect,
-  clientSidePagination = false,
-  getRowId,
-}: AppTableProps<T>) => {
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+interface AppTableRefMethods<T> {
+  getSelectedRowsOriginal: () => T[];
+}
+
+const AppTable = forwardRef(<T extends object>(props: AppTableProps<T>, ref: any) => {
+  const {
+    columns,
+    data = [],
+    selectionMode = 'none',
+    pageSize = 5,
+    pageIndex = 0,
+    onPaginationChange,
+    availablePageSizes = [5, 15, 30],
+    selectedItems = [],
+    rowSelection,
+    setRowSelection,
+    // onRowSelect,
+    clientSidePagination = false,
+    getRowId,
+  } = props;
+
+  // const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const mergedColumns: ColumnDef<T, string>[] =
     selectionMode === 'none'
@@ -119,7 +127,7 @@ const AppTable = <T extends object>({
 
     onSortingChange: setSorting,
 
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: setRowSelection as any,
 
     manualPagination: false,
     onPaginationChange: setPagination,
@@ -135,20 +143,24 @@ const AppTable = <T extends object>({
     onPaginationChange?.(pagination.pageIndex, pagination.pageSize);
   }, [onPaginationChange, pagination]);
 
-  useEffect(() => {
-    onRowSelect?.(getSelectedRowModel().rows.map((row) => row.original as T));
-  }, [getSelectedRowModel, onRowSelect, rowSelection]);
+  // useEffect(() => {
+  //   onRowSelect?.(getSelectedRowModel().rows.map((row) => row.original as T));
+  // }, [getSelectedRowModel, onRowSelect, rowSelection]);
 
-  useEffect(() => {
-    if (rowModel.flatRows.length && selectedItems.length) {
-      setRowSelection((prev) => {
-        const selection = getRowSelectionState(selectedItems, rowModel.flatRows, getRowId);
-        console.log(selectedItems, data, selection);
+  // useEffect(() => {
+  //   if (rowModel.flatRows.length && selectedItems.length) {
+  //     setRowSelection((prev) => {
+  //       const selection = getRowSelectionState(selectedItems, rowModel.flatRows, getRowId);
+  //       console.log(selectedItems, data, selection);
 
-        return selection;
-      });
-    }
-  }, [data, getRowId, rowModel.flatRows, selectedItems]);
+  //       return selection;
+  //     });
+  //   }
+  // }, [data, getRowId, rowModel.flatRows, selectedItems]);
+
+  useImperativeHandle(ref, () => ({
+    getSelectedRows: () => getSelectedRowModel().rows.map((row) => row.original),
+  }));
 
   return (
     <table
@@ -240,6 +252,6 @@ const AppTable = <T extends object>({
       </tfoot>
     </table>
   );
-};
-
+});
+AppTable.displayName = 'AppTable';
 export default AppTable;

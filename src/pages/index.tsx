@@ -1,10 +1,10 @@
 import Head from 'next/head';
 
-import { makeFakePeople } from '@app/utils/fake-data';
+import { fakePersons, makeFakePeople } from '@app/utils/fake-data';
 import AppTable from '@app/components/app-table';
-import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { ColumnDef, RowSelectionState, createColumnHelper } from '@tanstack/react-table';
 import { Person } from '@app/types';
-import { useEffect, useReducer, useState } from 'react';
+import { use, useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { faker } from '@faker-js/faker';
 
 const personColumnHelper = createColumnHelper<Person>();
@@ -36,26 +36,27 @@ const columns: ColumnDef<Person, any>[] = [
 ];
 
 interface TableAction {
-  type: 'SELECT_RADIO_ITEM' | 'SELECT_CHECKdiv_ITEM';
+  type: 'SELECT_RADIO_ITEM' | 'SELECT_CHECKBOX_ITEM';
   payload: any;
 }
 
 interface PageTableSelectionState {
   selectedRadioItem: Person;
-  selectedCheckdivItems: Person[];
+  selectedCheckBoxItems: Person[];
 }
 
 const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
   switch (action.type) {
     case 'SELECT_RADIO_ITEM':
+      console.log('SELECT_RADIO_ITEM', action.payload);
       return {
         ...state,
         selectedRadioItem: action.payload,
       };
-    case 'SELECT_CHECKdiv_ITEM':
+    case 'SELECT_CHECKBOX_ITEM':
       return {
         ...state,
-        selectedCheckdivItems: [...action.payload],
+        selectedCheckBoxItems: [...action.payload],
       };
 
     default:
@@ -67,19 +68,37 @@ const stateReducer = (state: PageTableSelectionState, action: TableAction) => {
 export default function Home() {
   const [state, dispatch] = useReducer(stateReducer, {
     selectedRadioItem: undefined,
-    selectedCheckdivItems: [],
+    selectedCheckBoxItems: [],
   });
 
-  const [fakePersons, setFakePersons] = useState<Person[]>([]);
+  // const [fakePersons, setFakePersons] = useState<Person[]>([]);
 
-  const [selectedRadioItem, setSelectedRadioItem] = useState<Person>();
-  const [selectedCheckdivItems, setSelectedCheckdivItems] = useState<Person[]>([]);
+  const [selectedRadioItem, setSelectedRadioItem] = useState<RowSelectionState>({});
+  const [selectedCheckBoxItems, setSelectedCheckBoxItems] = useState<RowSelectionState>({});
+
+  const getRowId = useCallback((row) => row.id, []);
+
+  const radioTableRef = useRef(null);
+  const checkboxTableRef = useRef(null);
 
   useEffect(() => {
     console.log('page rendered');
-    const fakePeople = Array.from({ length: 100 }, () => makeFakePeople());
-    setFakePersons(fakePeople);
   }, []);
+
+  useEffect(() => {
+    dispatch({
+      type: 'SELECT_RADIO_ITEM',
+      payload: radioTableRef.current?.getSelectedRows?.(),
+    });
+  }, [selectedRadioItem]);
+
+  useEffect(() => {
+    dispatch({
+      type: 'SELECT_CHECKBOX_ITEM',
+      payload: checkboxTableRef.current?.getSelectedRows?.(),
+    });
+  }, [selectedCheckBoxItems]);
+
   return (
     <>
       <Head>
@@ -90,7 +109,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
+        <div style={{ width: '100%', margin: '0' }}>
           <div
             style={{
               display: 'flex',
@@ -107,13 +126,15 @@ export default function Home() {
               paddingBottom: '20px',
             }}
           >
-            <AppTable
-              data={fakePersons}
-              columns={columns}
-              getRowId={(row) => row.id}
-              clientSidePagination={true}
-              pageSize={5}
-            />
+            {fakePersons.length && (
+              <AppTable
+                data={fakePersons}
+                columns={columns}
+                getRowId={getRowId}
+                clientSidePagination={true}
+                pageSize={5}
+              />
+            )}
           </div>
           <div
             style={{
@@ -121,20 +142,19 @@ export default function Home() {
               paddingBottom: '20px',
             }}
           >
-            <AppTable
-              data={fakePersons}
-              columns={columns}
-              getRowId={(row) => row.id}
-              clientSidePagination={true}
-              pageSize={5}
-              selectionMode="single"
-              onRowSelect={(items: Person[]) => {
-                console.log('called single checkdiv handler');
-                console.log(items);
-                setSelectedRadioItem(items[0]);
-                // dispatch({ type: 'SELECT_RADIO_ITEM', payload: items[0] });
-              }}
-            />
+            {fakePersons.length && (
+              <AppTable
+                data={fakePersons}
+                columns={columns}
+                getRowId={getRowId}
+                clientSidePagination={true}
+                pageSize={5}
+                selectionMode="single"
+                rowSelection={selectedRadioItem}
+                setRowSelection={setSelectedRadioItem}
+                ref={radioTableRef}
+              />
+            )}
           </div>
           <div
             style={{
@@ -142,25 +162,26 @@ export default function Home() {
               paddingBottom: '40px',
             }}
           >
-            <AppTable
-              data={fakePersons}
-              columns={columns}
-              getRowId={(row) => row.id}
-              clientSidePagination={true}
-              pageSize={5}
-              selectionMode="multiple"
-              onRowSelect={(items: Person[]) => {
-                console.log('called multiselect checkdiv handler');
-                // setSelectedCheckdivItems(items);
-              }}
-            />
+            {fakePersons.length && (
+              <AppTable
+                data={fakePersons}
+                columns={columns}
+                getRowId={getRowId}
+                clientSidePagination={true}
+                pageSize={5}
+                selectionMode="multiple"
+                rowSelection={selectedCheckBoxItems}
+                setRowSelection={setSelectedCheckBoxItems}
+                ref={checkboxTableRef}
+              />
+            )}
           </div>
           <div
             style={{
               position: 'fixed',
               bottom: 0,
               right: 0,
-              width: '400px',
+              width: '25vw',
               top: 0,
               border: '1px solid rgba(0, 0, 0, 0.23)',
             }}
@@ -171,27 +192,9 @@ export default function Home() {
               <h6 style={{ marginBottom: '20px' }}>Selected Radio Item from app state</h6>
               <pre>{JSON.stringify(state.selectedRadioItem, null, 2)}</pre>
               <h6 style={{ marginBottom: '20px' }}>Selected Checkdiv Items from local state</h6>
-              <pre>{JSON.stringify(selectedCheckdivItems, null, 2)}</pre>
+              <pre>{JSON.stringify(selectedCheckBoxItems, null, 2)}</pre>
               <h6 style={{ marginBottom: '20px' }}>Selected Checkdiv Items from app state</h6>
-              <pre>{JSON.stringify(state.selectedCheckdivItems, null, 2)}</pre>
-              <button
-                style={{ marginRight: '10px' }}
-                onClick={() => {
-                  setSelectedCheckdivItems([fakePersons[0], fakePersons[1]]);
-                }}
-              >
-                Test Local
-              </button>
-              <button
-                onClick={() => {
-                  dispatch({
-                    type: 'SELECT_CHECKdiv_ITEM',
-                    payload: [fakePersons[0], fakePersons[1]],
-                  });
-                }}
-              >
-                Test Dispatch
-              </button>
+              <pre>{JSON.stringify(state.selectedCheckBoxItems, null, 2)}</pre>
             </div>
           </div>
         </div>
