@@ -66,7 +66,7 @@ const AppTable = <T extends object>(props: AppTableProps<T>) => {
                 ) : (
                   <input
                     type="radio"
-                    name={`select-row-${row.id}`}
+                    name={`select-row-from-table`}
                     {...{
                       checked: row.getIsSelected(),
                       disabled: !row.getCanSelect(),

@@ -42,7 +42,7 @@ export default function Home() {
 
   useEffect(() => {
     selectedRadioItem && dispatch({ type: 'SELECT_RADIO_ITEM', payload: selectedRadioItem });
-    selectedCheckBoxItems?.length && dispatch({ type: 'SELECT_CHECKBOX_ITEM', payload: selectedCheckBoxItems });
+    selectedCheckBoxItems && dispatch({ type: 'SELECT_CHECKBOX_ITEM', payload: selectedCheckBoxItems });
   }, [selectedRadioItem, selectedCheckBoxItems]);
 
   return (
@@ -126,6 +126,7 @@ export default function Home() {
               width: '25vw',
               top: 0,
               border: '1px solid rgba(0, 0, 0, 0.23)',
+              overflow: 'auto',
             }}
           >
             <div style={{ padding: '20px' }}>
