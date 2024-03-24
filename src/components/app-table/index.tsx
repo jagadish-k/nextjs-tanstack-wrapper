@@ -22,11 +22,7 @@ declare module '@tanstack/react-table' {
   }
 }
 
-interface AppTableRefMethods<T> {
-  getSelectedRowsOriginal: () => T[];
-}
-
-const AppTable = forwardRef(<T extends object>(props: AppTableProps<T>, ref: any) => {
+const AppTable = <T extends object>(props: AppTableProps<T>) => {
   const {
     columns,
     data = [],
@@ -158,10 +154,6 @@ const AppTable = forwardRef(<T extends object>(props: AppTableProps<T>, ref: any
   //   }
   // }, [data, getRowId, rowModel.flatRows, selectedItems]);
 
-  useImperativeHandle(ref, () => ({
-    getSelectedRows: () => getSelectedRowModel().rows.map((row) => row.original),
-  }));
-
   return (
     <table
       style={{
@@ -252,6 +244,6 @@ const AppTable = forwardRef(<T extends object>(props: AppTableProps<T>, ref: any
       </tfoot>
     </table>
   );
-});
-AppTable.displayName = 'AppTable';
+};
+
 export default AppTable;

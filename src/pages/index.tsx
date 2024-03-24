@@ -78,26 +78,9 @@ export default function Home() {
 
   const getRowId = useCallback((row) => row.id, []);
 
-  const radioTableRef = useRef(null);
-  const checkboxTableRef = useRef(null);
-
   useEffect(() => {
     console.log('page rendered');
   }, []);
-
-  useEffect(() => {
-    dispatch({
-      type: 'SELECT_RADIO_ITEM',
-      payload: radioTableRef.current?.getSelectedRows?.(),
-    });
-  }, [selectedRadioItem]);
-
-  useEffect(() => {
-    dispatch({
-      type: 'SELECT_CHECKBOX_ITEM',
-      payload: checkboxTableRef.current?.getSelectedRows?.(),
-    });
-  }, [selectedCheckBoxItems]);
 
   return (
     <>
@@ -152,7 +135,6 @@ export default function Home() {
                 selectionMode="single"
                 rowSelection={selectedRadioItem}
                 setRowSelection={setSelectedRadioItem}
-                ref={radioTableRef}
               />
             )}
           </div>
@@ -172,7 +154,6 @@ export default function Home() {
                 selectionMode="multiple"
                 rowSelection={selectedCheckBoxItems}
                 setRowSelection={setSelectedCheckBoxItems}
-                ref={checkboxTableRef}
               />
             )}
           </div>
