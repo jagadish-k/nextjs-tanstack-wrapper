@@ -1,3 +1,5 @@
+import { VscChevronLeft, VscChevronRight } from 'react-icons/vsc';
+
 import { CustomFooterProps } from './types';
 
 export const CustomFooter: React.FC<CustomFooterProps> = ({
@@ -24,28 +26,38 @@ export const CustomFooter: React.FC<CustomFooterProps> = ({
       style={{
         padding: '0 10px',
         border: '1px solid rgba(0, 0, 0, 0.23)',
-        minWidth: '32px',
-        height: '32px',
-        lineHeight: '32px',
+        borderRadius: '50%',
+        minWidth: '40px',
+        height: '40px',
+        lineHeight: '40px',
+        margin: '0 15px',
       }}
     >
-      Prev
+      <VscChevronLeft />
     </button>
 
-    <span>{currentPage}</span>
+    <span
+      style={{
+        margin: '0 5px',
+      }}
+    >
+      {currentPage}
+    </span>
 
     <button
       style={{
+        borderRadius: '50%',
         padding: '0 10px',
         border: '1px solid rgba(0, 0, 0, 0.23)',
-        minWidth: '32px',
-        height: '32px',
-        lineHeight: '32px',
+        minWidth: '40px',
+        height: '40px',
+        lineHeight: '40px',
+        margin: '0 15px',
       }}
       disabled={!enableNext}
       onClick={handleNext}
     >
-      Next
+      <VscChevronRight />
     </button>
 
     <select id="demo-select-small" value={pageSize} onChange={handlePageSizeChange} name="num-rows-selector">
